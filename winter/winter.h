@@ -32,6 +32,12 @@ constexpr float scr_height(700.0f);
 constexpr float sky(50.0f);
 constexpr float ground(650.0f);
 
+struct GAME_COORD
+{
+	float x{ 0 };
+	float y{ 0 };
+};
+
 namespace game
 {
 	class WINTER_API RANDERER
@@ -98,5 +104,65 @@ namespace game
 			void operator()(SIMPLE& element, size_t position);
 	};
 
+	class WINTER_API CREATURE :public SIMPLE
+	{
+		protected:
+
+			unsigned char flags{ 0b00000000 };
+
+			int max_frames{ 0 };
+			int frame_delay{ 0 };
+			int current_frame{ 0 };
+
+			float speed{ 0 };
+
+			float move_x{ 0 };
+			float move_y{ 0 };
+			float move_ex{ 0 };
+			float move_ey{ 0 };
+			float slope{ 0 };
+			float intercept{ 0 };
+
+			int strenght{ 0 };
+			int attack_delay{ 0 };
+
+			bool hor_path = false;
+			bool vert_path = false;
+			
+		public:
+
+			CREATURE(float _sx, float _sy);
+			virtual ~CREATURE() {};
+
+			void SetPathInfo(float _endx, float _endy);
+			int GetDistance(GAME_COORD first_point, GAME_COORD second_point);
+			bool GetFlag(unsigned char which_flag) const;
+			void SetFlag(unsigned char which_flag);
+			void NullFlag(unsigned char which_flag);
+
+			virtual unsigned char Move(float gear, SIMPLE_PACK& enemies) = 0;
+			virtual void Release() = 0;
+			virtual int Attack() = 0;
+			virtual int GetFrame() = 0;
+			virtual void Transform(unsigned char to_what) = 0;
+	};
+
+	class WINTER_API EVILS :public CREATURE
+	{
+		protected:
+
+			EVILS(unsigned char _type, float _sx, float _sy);
+
+		public:
+			int lifes{ 0 };
+
+			friend EVILS* EvilFactory(unsigned char _type, float _sx, float _sy);
+
+			unsigned char Move(float gear, SIMPLE_PACK& enemies) override;
+			void Release() override;
+			int Attack() override;
+			int GetFrame() override;
+			void Transform(unsigned char to_what) override;
+	};
 
 }

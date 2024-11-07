@@ -108,3 +108,234 @@ void game::SIMPLE_PACK::operator()(SIMPLE& element, size_t position)
 }
 
 ///////////////////////////////////
+
+//CREATURE ***********************
+
+game::CREATURE::CREATURE(float _sx, float _sy) {};
+void game::CREATURE::SetPathInfo(float _endx, float _endy)
+{
+	hor_path = false;
+	vert_path = false;
+
+	move_x = x; 
+	move_y = y;
+	move_ex = _endx;
+	move_ey = _endy;
+
+	if (move_ex - move_x == 0)
+	{
+		vert_path = true;
+		return;
+	}
+	if (move_ey - move_y == 0)
+	{
+		hor_path = true;
+		return;
+	}
+	
+	slope = (move_ey - move_y) / (move_ex - move_x);
+	intercept = move_y - slope * move_x;
+}
+int game::CREATURE::GetDistance(GAME_COORD first_point, GAME_COORD second_point)
+{
+	int catet1 = abs(second_point.x - first_point.x);
+	int catet2 = abs(second_point.y - first_point.y);
+
+	if (catet1 == 0)return catet2;
+	if (catet2 == 0)return catet1;
+
+	return static_cast<int>(sqrt(pow(catet1, 2) + pow(catet2, 2)));
+}
+bool game::CREATURE::GetFlag(unsigned char which_flag) const
+{
+	return flags & which_flag;
+}
+void game::CREATURE::SetFlag(unsigned char which_flag)
+{
+	flags |= which_flag;
+}
+void game::CREATURE::NullFlag(unsigned char which_flag)
+{
+	flags &= ~which_flag;
+}
+
+
+//EVILS **************************
+
+game::EVILS::EVILS(unsigned char _type, float _sx, float _sy):CREATURE(_sx,_sy)
+{
+	flags |= _type;
+	switch (flags)
+	{
+	case evil1_flag:
+		lifes = 50;
+		speed = 0.6f;
+		strenght = 3;
+		max_frames = 7;
+		frame_delay = 10;
+		attack_delay = 50;
+		break;
+
+	case evil2_flag:
+		lifes = 60;
+		speed = 0.5f;
+		strenght = 4;
+		max_frames = 12;
+		frame_delay = 6;
+		attack_delay = 60;
+		break;
+
+	case evil3_flag:
+		lifes = 70;
+		speed = 0.7f;
+		strenght = 6;
+		max_frames = 35;
+		frame_delay = 2;
+		attack_delay = 70;
+		break;
+
+	case evil4_flag:
+		lifes = 80;
+		speed = 0.4f;
+		strenght = 7;
+		max_frames = 13;
+		frame_delay = 6;
+		attack_delay = 80;
+		break;
+
+	case evil5_flag:
+		lifes = 90;
+		speed = 0.6f;
+		strenght = 10;
+		max_frames = 15;
+		frame_delay = 5;
+		attack_delay = 90;
+		break;
+	}
+}
+void game::EVILS::Release()
+{
+	delete this;
+}
+int game::EVILS::GetFrame()
+{
+	--frame_delay;
+	if (frame_delay < 0)
+	{
+		switch (flags)
+		{
+		case evil1_flag:
+			frame_delay = 10;
+			break;
+
+		case evil2_flag:
+			frame_delay = 6;
+			break;
+
+		case evil3_flag:
+			frame_delay = 2;
+			break;
+
+		case evil4_flag:
+			frame_delay = 6;
+			break;
+
+		case evil5_flag:
+			frame_delay = 5;
+			break;
+		}
+		++current_frame;
+		if (current_frame > max_frames)current_frame = 0;
+	}
+	return current_frame;
+}
+int game::EVILS::Attack()
+{
+	--attack_delay;
+	if (attack_delay < 0)
+	{
+		switch (flags)
+		{
+		case evil1_flag:
+			attack_delay = 50;
+			break;
+
+		case evil2_flag:
+			attack_delay = 60;
+			break;
+
+		case evil3_flag:
+			attack_delay = 70;
+			break;
+
+		case evil4_flag:
+			attack_delay = 80;
+			break;
+
+		case evil5_flag:
+			attack_delay = 90;
+			break;
+		}
+		return strenght;
+	}
+	return 0;
+}
+void game::EVILS::Transform(unsigned char to_what)
+{
+	flags |= to_what;
+	switch (flags)
+	{
+	case evil1_flag:
+		lifes = 50;
+		speed = 0.6f;
+		strenght = 3;
+		max_frames = 7;
+		frame_delay = 10;
+		attack_delay = 50;
+		break;
+
+	case evil2_flag:
+		lifes = 60;
+		speed = 0.5f;
+		strenght = 4;
+		max_frames = 12;
+		frame_delay = 6;
+		attack_delay = 60;
+		break;
+
+	case evil3_flag:
+		lifes = 70;
+		speed = 0.7f;
+		strenght = 6;
+		max_frames = 35;
+		frame_delay = 2;
+		attack_delay = 70;
+		break;
+
+	case evil4_flag:
+		lifes = 80;
+		speed = 0.4f;
+		strenght = 7;
+		max_frames = 13;
+		frame_delay = 6;
+		attack_delay = 80;
+		break;
+
+	case evil5_flag:
+		lifes = 90;
+		speed = 0.6f;
+		strenght = 10;
+		max_frames = 15;
+		frame_delay = 5;
+		attack_delay = 90;
+		break;
+	}
+}
+
+
+//FACTORIES ***********************
+
+game::EVILS* game::EvilFactory(unsigned char _type, float _sx, float _sy)
+{
+	return new game::EVILS(_type, _sx, _sy);
+}
