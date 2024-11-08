@@ -77,6 +77,10 @@ size_t game::SIMPLE_PACK::FreeCapacity()const
 {
 	return (lenght - next_position);
 }
+size_t game::SIMPLE_PACK::size() const
+{
+	return lenght;
+}
 game::SIMPLE_PACK::~SIMPLE_PACK()
 {
 	if (state_of_pack)delete[]base_ptr;
@@ -157,6 +161,37 @@ void game::CREATURE::SetFlag(unsigned char which_flag)
 void game::CREATURE::NullFlag(unsigned char which_flag)
 {
 	flags &= ~which_flag;
+}
+GAME_COORD game::CREATURE::SortPack(SIMPLE_PACK& Package)
+{
+	GAME_COORD ret{};
+
+	if (Package.size() > 2)
+	{
+		bool is_ok = false;
+
+		while (!is_ok)
+		{
+			is_ok = true;
+			for (size_t pos = 0; pos < Package.size() - 2; ++pos)
+			{
+				int dist1 = GetDistance(GAME_COORD(Package[pos].x, Package[pos].y), 
+					GAME_COORD(Package[pos + 1].x, Package[pos + 1].y));
+				int dist2 = GetDistance(GAME_COORD(Package[pos].x, Package[pos].y),
+					GAME_COORD(Package[pos + 2].x, Package[pos + 2].y));
+
+				if (dist1 > dist2)
+				{
+					game::SIMPLE temp_simple{ Package[pos + 1] };
+					Package[pos + 1] = Package[pos + 2];
+					Package[pos + 2] = temp_simple;
+					is_ok = false;
+				}
+			}
+		}
+	}
+	ret.x = Package[0].x;
+	ret.y = Package[0].y;
 }
 
 

@@ -98,6 +98,7 @@ namespace game
 			bool IsValid() const;
 			size_t FreeCapacity() const;
 
+			size_t size() const;
 			void push_back(SIMPLE& element);
 			void push_front(SIMPLE& element);
 			SIMPLE& operator[](size_t position);
@@ -139,6 +140,8 @@ namespace game
 			bool GetFlag(unsigned char which_flag) const;
 			void SetFlag(unsigned char which_flag);
 			void NullFlag(unsigned char which_flag);
+			GAME_COORD SortPack(SIMPLE_PACK& Package);
+
 
 			virtual unsigned char Move(float gear, SIMPLE_PACK& enemies) = 0;
 			virtual void Release() = 0;
