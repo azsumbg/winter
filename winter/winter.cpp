@@ -142,8 +142,8 @@ void game::CREATURE::SetPathInfo(float _endx, float _endy)
 }
 int game::CREATURE::GetDistance(GAME_COORD first_point, GAME_COORD second_point)
 {
-	int catet1 = abs(second_point.x - first_point.x);
-	int catet2 = abs(second_point.y - first_point.y);
+	int catet1 = static_cast<int>(abs(second_point.x - first_point.x));
+	int catet2 = static_cast<int>(abs(second_point.y - first_point.y));
 
 	if (catet1 == 0)return catet2;
 	if (catet2 == 0)return catet1;
@@ -192,8 +192,8 @@ GAME_COORD game::CREATURE::SortPack(SIMPLE_PACK& Package)
 	}
 	ret.x = Package[0].x;
 	ret.y = Package[0].y;
+	return ret;
 }
-
 
 //EVILS **************************
 
@@ -209,6 +209,7 @@ game::EVILS::EVILS(unsigned char _type, float _sx, float _sy):CREATURE(_sx,_sy)
 		max_frames = 7;
 		frame_delay = 10;
 		attack_delay = 50;
+		NewDims(40.0f, 33.0f);
 		break;
 
 	case evil2_flag:
@@ -218,6 +219,7 @@ game::EVILS::EVILS(unsigned char _type, float _sx, float _sy):CREATURE(_sx,_sy)
 		max_frames = 12;
 		frame_delay = 6;
 		attack_delay = 60;
+		NewDims(28.0f, 50.0f);
 		break;
 
 	case evil3_flag:
@@ -227,6 +229,7 @@ game::EVILS::EVILS(unsigned char _type, float _sx, float _sy):CREATURE(_sx,_sy)
 		max_frames = 35;
 		frame_delay = 2;
 		attack_delay = 70;
+		NewDims(60.0f, 55.0f);
 		break;
 
 	case evil4_flag:
@@ -236,6 +239,7 @@ game::EVILS::EVILS(unsigned char _type, float _sx, float _sy):CREATURE(_sx,_sy)
 		max_frames = 13;
 		frame_delay = 6;
 		attack_delay = 80;
+		NewDims(65.0f, 60.0f);
 		break;
 
 	case evil5_flag:
@@ -245,6 +249,7 @@ game::EVILS::EVILS(unsigned char _type, float _sx, float _sy):CREATURE(_sx,_sy)
 		max_frames = 15;
 		frame_delay = 5;
 		attack_delay = 90;
+		NewDims(35.0f, 60.0f);
 		break;
 	}
 }
@@ -327,6 +332,7 @@ void game::EVILS::Transform(unsigned char to_what)
 		max_frames = 7;
 		frame_delay = 10;
 		attack_delay = 50;
+		NewDims(40.0f, 33.0f);
 		break;
 
 	case evil2_flag:
@@ -336,6 +342,7 @@ void game::EVILS::Transform(unsigned char to_what)
 		max_frames = 12;
 		frame_delay = 6;
 		attack_delay = 60;
+		NewDims(28.0f, 50.0f);
 		break;
 
 	case evil3_flag:
@@ -345,6 +352,7 @@ void game::EVILS::Transform(unsigned char to_what)
 		max_frames = 35;
 		frame_delay = 2;
 		attack_delay = 70;
+		NewDims(60.0f, 55.0f);
 		break;
 
 	case evil4_flag:
@@ -354,6 +362,7 @@ void game::EVILS::Transform(unsigned char to_what)
 		max_frames = 13;
 		frame_delay = 6;
 		attack_delay = 80;
+		NewDims(65.0f, 60.0f);
 		break;
 
 	case evil5_flag:
@@ -363,14 +372,197 @@ void game::EVILS::Transform(unsigned char to_what)
 		max_frames = 15;
 		frame_delay = 5;
 		attack_delay = 90;
+		NewDims(35.0f, 60.0f);
 		break;
 	}
 }
+unsigned char game::EVILS::Move(float gear, SIMPLE_PACK& enemies)
+{
+	float current_speed = speed + gear / 10;
+	GAME_COORD enemy_coordinates{ SortPack(enemies) };
+	SetPathInfo(enemy_coordinates.x, enemy_coordinates.y);
+	
+	if (hor_path)
+	{
+		if (x >= enemy_coordinates.x)x -= current_speed;
+		else x += current_speed;
+	}
+	else if (vert_path)
+	{
+		if (y >= enemy_coordinates.y)y -= current_speed;
+		else y += current_speed;
+	}
+	else
+	{
+		if (x >= enemy_coordinates.x)x -= current_speed;
+		else x += current_speed;
+		y = x * slope + intercept;
+	}
 
+	SetEdges();
+
+	if (ex <= 0)move_flags |= left_flag;
+	if (x >= scr_width)move_flags |= right_flag;
+	if (ey <= sky)move_flags |= up_flag;
+	if (y >= ground)move_flags |= down_flag;
+	return move_flags;
+}
+
+//HEROES **************************
+
+game::HEROES::HEROES(unsigned char _what_type, float _sx, float _sy) :CREATURE(_sx, _sy)
+{
+	flags |= _what_type;
+
+	switch (flags)
+	{
+	case turret1_flag:
+		NewDims(30.0f, 22.0f);
+		lifes = 50;
+		strenght = 10;
+		attack_delay = 20;
+		break;
+
+	case turret2_flag:
+		NewDims(35.0f, 30.0f);
+		lifes = 80;
+		strenght = 15;
+		attack_delay = 18;
+		break;
+
+	case turret3_flag:
+		NewDims(40.0f, 27.0f);
+		lifes = 90;
+		strenght = 20;
+		attack_delay = 15;
+		break;
+
+	case turret4_flag:
+		NewDims(45.0f, 39.0f);
+		lifes = 100;
+		strenght = 30;
+		attack_delay = 12;
+		break;
+
+	case turret5_flag:
+		NewDims(50.0f, 46.0f);
+		lifes = 120;
+		strenght = 40;
+		attack_delay = 10;
+		break;
+
+	case turret6_flag:
+		NewDims(55.0f, 56.0f);
+		lifes = 150;
+		strenght = 50;
+		attack_delay = 5;
+		break;
+	}
+}
+void game::HEROES::Release()
+{
+	delete this;
+}
+int game::HEROES::GetFrame()
+{
+	return 0;
+}
+int game::HEROES::Attack()
+{
+	--attack_delay;
+	if (attack_delay < 0)
+	{
+		switch (flags)
+		{
+		case turret1_flag:
+			attack_delay = 20;
+			break;
+
+		case turret2_flag:
+			attack_delay = 18;
+			break;
+
+		case turret3_flag:
+			attack_delay = 15;
+			break;
+
+		case turret4_flag:
+			attack_delay = 12;
+			break;
+
+		case turret5_flag:
+			attack_delay = 10;
+			break;
+
+		case turret6_flag:
+			attack_delay = 5;
+			break;
+		}
+		return strenght;
+	}
+	return 0;
+}
+void game::HEROES::Transform(unsigned char to_what)
+{
+	flags |= to_what;
+	switch (flags)
+	{
+	case turret1_flag:
+		NewDims(30.0f, 22.0f);
+		lifes = 50;
+		strenght = 10;
+		attack_delay = 20;
+		break;
+
+	case turret2_flag:
+		NewDims(35.0f, 30.0f);
+		lifes = 80;
+		strenght = 15;
+		attack_delay = 18;
+		break;
+
+	case turret3_flag:
+		NewDims(40.0f, 27.0f);
+		lifes = 90;
+		strenght = 20;
+		attack_delay = 15;
+		break;
+
+	case turret4_flag:
+		NewDims(45.0f, 39.0f);
+		lifes = 100;
+		strenght = 30;
+		attack_delay = 12;
+		break;
+
+	case turret5_flag:
+		NewDims(50.0f, 46.0f);
+		lifes = 120;
+		strenght = 40;
+		attack_delay = 10;
+		break;
+
+	case turret6_flag:
+		NewDims(55.0f, 56.0f);
+		lifes = 150;
+		strenght = 50;
+		attack_delay = 5;
+		break;
+	}
+}
+unsigned char game::HEROES::Move(float gear, SIMPLE_PACK& enemies)
+{
+	return 0;
+}
 
 //FACTORIES ***********************
 
-game::EVILS* game::EvilFactory(unsigned char _type, float _sx, float _sy)
+game::evil_ptr game::EvilFactory(unsigned char _type, float _sx, float _sy)
 {
 	return new game::EVILS(_type, _sx, _sy);
+}
+
+game::turret_ptr game::TurretFactory(unsigned char _what_type, float _sx, float _sy)
+{
+	return new HEROES(_what_type, _sx, _sy);
 }

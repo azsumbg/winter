@@ -110,6 +110,7 @@ namespace game
 		protected:
 
 			unsigned char flags{ 0b00000000 };
+			unsigned char move_flags{ 0b00000000 };
 
 			int max_frames{ 0 };
 			int frame_delay{ 0 };
@@ -168,4 +169,23 @@ namespace game
 			void Transform(unsigned char to_what) override;
 	};
 
+	class WINTER_API HEROES :public CREATURE
+	{
+		protected:
+			HEROES(unsigned char _what_type, float _sx, float _sy);
+
+		public:
+			int lifes{ 0 };
+
+			friend HEROES* TurretFactory(unsigned char _what_type, float _sx, float _sy);
+
+			unsigned char Move(float gear, SIMPLE_PACK& enemies) override;
+			void Release() override;
+			int Attack() override;
+			int GetFrame() override;
+			void Transform(unsigned char to_what) override;
+	};
+
+	typedef EVILS* evil_ptr;
+	typedef HEROES* turret_ptr;
 }
